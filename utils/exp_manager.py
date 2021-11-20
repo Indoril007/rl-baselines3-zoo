@@ -42,7 +42,7 @@ from torch import nn as nn  # noqa: F401
 import utils.import_envs  # noqa: F401 pytype: disable=import-error
 from utils.callbacks import SaveVecNormalizeCallback, TrialEvalCallback
 from utils.hyperparams_opt import HYPERPARAMS_SAMPLER
-from utils.utils import ALGOS, get_callback_list, get_latest_run_id, get_wrapper_class, linear_schedule
+from utils.utils import ALGOS, get_callback_list, get_latest_run_id, get_wrapper_class, linear_schedule, expand_buffer_size, reduce_buffer_size
 
 
 class ExperimentManager(object):
@@ -82,6 +82,7 @@ class ExperimentManager(object):
         seed: int = 0,
         log_interval: int = 0,
         save_replay_buffer: bool = False,
+        load_replay_buffer: str = "",
         verbose: int = 1,
         vec_env_type: str = "dummy",
         n_eval_envs: int = 1,
@@ -145,6 +146,7 @@ class ExperimentManager(object):
         self.args = args
         self.log_interval = log_interval
         self.save_replay_buffer = save_replay_buffer
+        self.load_replay_buffer = load_replay_buffer
 
         self.log_path = f"{log_folder}/{self.algo}/"
         self.save_path = os.path.join(
@@ -183,6 +185,18 @@ class ExperimentManager(object):
                 verbose=self.verbose,
                 **self._hyperparams,
             )
+
+            if self.load_replay_buffer:
+                model.load_replay_buffer(self.load_replay_buffer,
+                                         truncate_last_traj=self.truncate_last_trajectory)
+                model.replay_buffer = reduce_buffer_size(
+                    model.replay_buffer,
+                    portion=0.8
+                )
+                model.replay_buffer = expand_buffer_size(
+                    model.replay_buffer,
+                    1000000
+                )
 
         self._save_config(saved_hyperparams)
         return model

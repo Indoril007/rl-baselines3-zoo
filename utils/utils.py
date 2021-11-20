@@ -18,6 +18,8 @@ from stable_baselines3.common.vec_env import DummyVecEnv, SubprocVecEnv, VecEnv,
 # For custom activation fn
 from torch import nn as nn  # noqa: F401 pylint: disable=unused-import
 
+import numpy as np
+
 ALGOS = {
     "a2c": A2C,
     "ddpg": DDPG,
@@ -39,6 +41,44 @@ def flatten_dict_observations(env: gym.Env) -> gym.Env:
         keys = env.observation_space.spaces.keys()
         return gym.wrappers.FlattenDictWrapper(env, dict_keys=list(keys))
 
+def reduce_buffer_size(replay_buffer, portion):
+    done_idxs, = np.where(replay_buffer.dones.flatten())
+    start_idx = done_idxs[int(len(done_idxs) * portion)] + 1
+    replay_buffer.buffer_size = replay_buffer.buffer_size - start_idx
+
+    replay_buffer.observations = replay_buffer.observations[start_idx:]
+    replay_buffer.next_observations = replay_buffer.next_observations[start_idx:]
+    replay_buffer.actions = replay_buffer.actions[start_idx:]
+    replay_buffer.rewards = replay_buffer.rewards[start_idx:]
+    replay_buffer.dones = replay_buffer.dones[start_idx:]
+    replay_buffer.timeouts = replay_buffer.timeouts[start_idx:]
+    replay_buffer.pos = replay_buffer.pos - start_idx
+
+    return replay_buffer
+
+def expand_buffer_size(replay_buffer, extend_n):
+    replay_buffer.buffer_size = replay_buffer.buffer_size + extend_n
+    replay_buffer.full = False
+
+    observations = np.zeros((extend_n, replay_buffer.n_envs) + replay_buffer.obs_shape, dtype=replay_buffer.observations.dtype)
+    replay_buffer.observations = np.concatenate([replay_buffer.observations, observations], axis=0)
+
+    next_observations = np.zeros((extend_n, replay_buffer.n_envs) + replay_buffer.obs_shape, dtype=replay_buffer.next_observations.dtype)
+    replay_buffer.next_observations = np.concatenate([replay_buffer.next_observations, next_observations], axis=0)
+
+    actions = np.zeros((extend_n, replay_buffer.n_envs, replay_buffer.action_dim), dtype=replay_buffer.actions.dtype)
+    replay_buffer.actions = np.concatenate([replay_buffer.actions, actions], axis=0)
+
+    rewards = np.zeros((extend_n, replay_buffer.n_envs), dtype=np.float32)
+    replay_buffer.rewards = np.concatenate([replay_buffer.rewards, rewards], axis=0)
+
+    dones = np.zeros((extend_n, replay_buffer.n_envs), dtype=np.float32)
+    replay_buffer.dones = np.concatenate([replay_buffer.dones, dones], axis=0)
+
+    timeouts = np.zeros((extend_n, replay_buffer.n_envs), dtype=np.float32)
+    replay_buffer.timeouts = np.concatenate([replay_buffer.timeouts, timeouts], axis=0)
+
+    return replay_buffer
 
 def get_wrapper_class(hyperparams: Dict[str, Any]) -> Optional[Callable[[gym.Env], gym.Env]]:
     """
