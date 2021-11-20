@@ -43,6 +43,10 @@ try:
 except ImportError:
     rocket_lander_gym = None
 
+try:
+    import d4rl
+except ImportError:
+    d4rl_env = None
 
 # Register no vel envs
 def create_no_vel_env(env_id: str):
@@ -60,3 +64,4 @@ for env_id in MaskVelocityWrapper.velocity_indices.keys():
         id=f"{name}NoVel-v{version}",
         entry_point=create_no_vel_env(env_id),
     )
+
