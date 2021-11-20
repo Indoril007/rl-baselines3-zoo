@@ -32,3 +32,8 @@ try:
     import panda_gym  # pytype: disable=import-error
 except ImportError:
     panda_gym = None
+
+try:
+    import d4rl  # pytype: disable=import-error
+except ImportError:
+    d4rl_env = None
