@@ -36,6 +36,20 @@ ALGOS = {
 }
 
 
+def load_buffer_from_offline_dataset(replay_buffer, dataset):
+    for i in range(len(dataset['observations'])):
+        replay_buffer.add(
+            obs=dataset['observations'][i],
+            next_obs=dataset['next_observations'][i],
+            action=dataset['actions'][i],
+            reward=dataset['rewards'][i],
+            done=dataset['terminals'][i],
+            infos=None,
+        )
+
+    return replay_buffer
+
+
 def flatten_dict_observations(env: gym.Env) -> gym.Env:
     assert isinstance(env.observation_space, gym.spaces.Dict)
     try:

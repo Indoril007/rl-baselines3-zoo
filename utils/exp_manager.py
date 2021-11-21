@@ -47,7 +47,9 @@ from torch import nn as nn  # noqa: F401
 import utils.import_envs  # noqa: F401 pytype: disable=import-error
 from utils.callbacks import SaveVecNormalizeCallback, TrialEvalCallback
 from utils.hyperparams_opt import HYPERPARAMS_SAMPLER
-from utils.utils import ALGOS, get_callback_list, get_latest_run_id, get_wrapper_class, linear_schedule
+from utils.utils import ALGOS, get_callback_list, get_latest_run_id, get_wrapper_class, linear_schedule, load_buffer_from_offline_dataset
+
+import d4rl
 
 
 class ExperimentManager:
@@ -88,6 +90,7 @@ class ExperimentManager:
         seed: int = 0,
         log_interval: int = 0,
         save_replay_buffer: bool = False,
+        load_offline_buffer: bool = False,
         verbose: int = 1,
         vec_env_type: str = "dummy",
         n_eval_envs: int = 1,
@@ -155,6 +158,7 @@ class ExperimentManager:
         self.args = args
         self.log_interval = log_interval
         self.save_replay_buffer = save_replay_buffer
+        self.load_offline_buffer = load_offline_buffer
 
         self.log_path = f"{log_folder}/{self.algo}/"
         self.save_path = os.path.join(
@@ -195,6 +199,14 @@ class ExperimentManager:
                 device=self.device,
                 **self._hyperparams,
             )
+
+            if self.load_offline_buffer:
+                dataset = d4rl.qlearning_dataset(env.envs[0])
+
+                model.replay_buffer = load_buffer_from_offline_dataset(
+                    model.replay_buffer,
+                    dataset,
+                )
 
         self._save_config(saved_hyperparams)
         return model, saved_hyperparams

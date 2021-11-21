@@ -283,5 +283,6 @@ pen-cloned-v0:
   n_timesteps: 500000
   policy: 'MlpPolicy'
   learning_rate: !!float 1e-3
+  # replay_buffer_kwargs: "dict(handle_timeout_termination=False)"
 
 
