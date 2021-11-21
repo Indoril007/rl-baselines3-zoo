@@ -36,15 +36,27 @@ ALGOS = {
 }
 
 
-def load_buffer_from_offline_dataset(replay_buffer, dataset):
-    for i in range(len(dataset['observations'])):
+def load_buffer_from_offline_dataset(replay_buffer, env):
+    dataset = env.get_dataset()
+
+    ep_done = False
+    for i in range(len(dataset['observations']) - 1):
+        if ep_done:
+            ep_done = False
+            continue
+
+        ep_done = dataset['terminals'][i + 1] or dataset['timeouts'][i + 1]
+        info = {
+            "TimeLimit.truncated": dataset['timeouts'][i + 1]
+        }
+
         replay_buffer.add(
             obs=dataset['observations'][i],
-            next_obs=dataset['next_observations'][i],
+            next_obs=dataset['observations'][i + 1],
             action=dataset['actions'][i],
             reward=dataset['rewards'][i],
-            done=dataset['terminals'][i],
-            infos=None,
+            done=ep_done,
+            infos=[info],
         )
 
     return replay_buffer

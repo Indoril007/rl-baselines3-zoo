@@ -201,11 +201,9 @@ class ExperimentManager:
             )
 
             if self.load_offline_buffer:
-                dataset = d4rl.qlearning_dataset(env.envs[0])
-
                 model.replay_buffer = load_buffer_from_offline_dataset(
                     model.replay_buffer,
-                    dataset,
+                    env.envs[0],
                 )
 
         self._save_config(saved_hyperparams)
