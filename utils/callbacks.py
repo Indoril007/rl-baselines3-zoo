@@ -5,10 +5,15 @@ from copy import deepcopy
 from functools import wraps
 from threading import Thread
 from typing import Optional
+import gym
+from utils import video
+from pathlib import Path
+import numpy as np
 
 import optuna
 from sb3_contrib import TQC
 from stable_baselines3 import SAC
+from stable_baselines3.common import base_class
 from stable_baselines3.common.callbacks import BaseCallback, EvalCallback
 from stable_baselines3.common.logger import TensorBoardOutputFormat
 from stable_baselines3.common.vec_env import VecEnv
@@ -55,6 +60,69 @@ class TrialEvalCallback(EvalCallback):
             if self.trial.should_prune():
                 self.is_pruned = True
                 return False
+        return True
+
+
+class RenderCallback(BaseCallback):
+
+    def __init__(
+        self,
+        log_path: str,
+        filename: str,
+        render_freq: int = 10000,
+        deterministic: bool = True,
+        n_episodes: int = 1,
+    ):
+        super().__init__()
+        self.log_path = log_path
+        self.filename = filename
+        self.render_freq = render_freq
+        self.deterministic = deterministic
+        self.n_episodes = n_episodes
+
+    def _init_callback(self) -> None:
+        pass
+
+    def _collect_episode(self):
+        renderings = []
+
+        print('Beggining render collections')
+
+        done = False
+        obs = self.training_env.reset()
+        renderings.append(
+            self.training_env.render('rgb_array')
+        )
+        state = None
+
+        while not done:
+            action, state = self.model.predict(
+                obs,
+                state=state,
+                deterministic=self.deterministic)
+            obs, reward, done, info = self.training_env.step(action)
+
+            renderings.append(
+                self.training_env.render('rgb_array')
+            )
+
+        return renderings
+
+    def _on_step(self) -> bool:
+
+        if self.n_calls and (self.n_calls % self.render_freq == 0):
+
+            for i in range(self.n_episodes):
+                renderings = np.array(self._collect_episode())
+                path = (
+                    Path(self.log_path) /
+                    (self.filename + f"_{self.n_calls}_{i}.mp4")
+                )
+                video.export_video(
+                    frames=renderings[:, ::-1],
+                    fname=str(path),
+                )
+
         return True
 
 

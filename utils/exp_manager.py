@@ -24,7 +24,8 @@ from sb3_contrib.common.vec_env import AsyncEval
 # For using HER with GoalEnv
 from stable_baselines3 import HerReplayBuffer  # noqa: F401
 from stable_baselines3.common.base_class import BaseAlgorithm
-from stable_baselines3.common.callbacks import BaseCallback, CheckpointCallback, EvalCallback
+from stable_baselines3.common.callbacks import BaseCallback, CheckpointCallback, \
+    EvalCallback
 from stable_baselines3.common.env_util import make_vec_env
 from stable_baselines3.common.noise import NormalActionNoise, OrnsteinUhlenbeckActionNoise
 from stable_baselines3.common.preprocessing import is_image_space, is_image_space_channels_first
@@ -45,7 +46,8 @@ from torch import nn as nn  # noqa: F401
 
 # Register custom envs
 import utils.import_envs  # noqa: F401 pytype: disable=import-error
-from utils.callbacks import SaveVecNormalizeCallback, TrialEvalCallback
+from utils.callbacks import SaveVecNormalizeCallback, TrialEvalCallback, \
+    RenderCallback
 from utils.hyperparams_opt import HYPERPARAMS_SAMPLER
 from utils.utils import ALGOS, get_callback_list, get_latest_run_id, get_wrapper_class, linear_schedule, load_buffer_from_offline_dataset
 
@@ -471,6 +473,14 @@ class ExperimentManager:
             )
 
             self.callbacks.append(eval_callback)
+
+            render_callback = RenderCallback(
+                log_path=self.save_path,
+                filename="trajectory",
+                render_freq=self.eval_freq,
+            )
+            self.callbacks.append(render_callback)
+
 
     @staticmethod
     def is_atari(env_id: str) -> bool:
