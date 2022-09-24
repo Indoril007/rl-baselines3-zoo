@@ -18,3 +18,12 @@ runs
 hub
 *.mp4
 *.json
+*.ipynb
+*.pkl
+*.zip
+pretrained_bc_agents/
+tb/
+__pycache__
+figures/
+output/
+.ipynb_checkpoints/
