@@ -202,11 +202,11 @@ class ExperimentManager:
                 **self._hyperparams,
             )
 
-            if self.load_offline_buffer:
-                model.replay_buffer = load_buffer_from_offline_dataset(
-                    model.replay_buffer,
-                    env.envs[0],
-                )
+        if self.load_offline_buffer:
+            model.replay_buffer = load_buffer_from_offline_dataset(
+                model.replay_buffer,
+                env.envs[0],
+            )
 
         self._save_config(saved_hyperparams)
         return model, saved_hyperparams
