@@ -474,12 +474,12 @@ class ExperimentManager:
 
             self.callbacks.append(eval_callback)
 
-            render_callback = RenderCallback(
-                log_path=self.save_path,
-                filename="trajectory",
-                render_freq=self.eval_freq,
-            )
-            self.callbacks.append(render_callback)
+            # render_callback = RenderCallback(
+            #     log_path=self.save_path,
+            #     filename="trajectory",
+            #     render_freq=self.eval_freq,
+            # )
+            # self.callbacks.append(render_callback)
 
 
     @staticmethod
