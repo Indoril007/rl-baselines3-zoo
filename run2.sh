@@ -1,0 +1,3 @@
+python train.py --algo sac --env HalfCheetahBulletEnv-v0 --eval-episodes 10 --eval-freq 10000 --save-replay-buffer --tensorboard-log "tb"  --load-replay-buffer "./logs/sac/HalfCheetahBulletEnv-v0_3/replay_buffer.pkl"
+python train.py --algo sac --env HalfCheetahBulletEnv-v0 --eval-episodes 10 --eval-freq 10000 --save-replay-buffer --tensorboard-log "tb"  --load-replay-buffer "./logs/sac/HalfCheetahBulletEnv-v0_4/replay_buffer.pkl"
+python train.py --algo sac --env HalfCheetahBulletEnv-v0 --eval-episodes 10 --eval-freq 10000 --save-replay-buffer --tensorboard-log "tb"  --load-replay-buffer "./logs/sac/HalfCheetahBulletEnv-v0_5/replay_buffer.pkl"

@@ -283,6 +283,19 @@ pen-cloned-v0:
   n_timesteps: 500000
   policy: 'MlpPolicy'
   learning_rate: !!float 1e-3
-  # replay_buffer_kwargs: "dict(handle_timeout_termination=False)"
+
+antmaze-umaze-v0:
+  n_timesteps: 5000000   
+  buffer_size: 2000000
+  policy: 'MlpPolicy'
+  learning_rate: !!float 1e-3
+  batch_size: 256
+  ent_coef: 0.0
+  gamma: 0.999
+  policy_kwargs: "dict(net_arch=[400, 300], n_critics=2)"
+  # ent_coef: 'auto'
+  # use_sde: True
+  # policy_kwargs: "dict(log_std_init=-3, net_arch=[400, 300], n_critics=3)"
+  # replay_buffer_kwargs: "dict(handle_timeout_termination=True)"
 
 
