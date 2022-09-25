@@ -48,6 +48,11 @@ try:
     from gym.envs.registration import register
     from d4rl.locomotion import maze_env
 
+    class StaticStartMazeEnv(d4rl.pointmaze.MazeEnv):
+        def __init__(self, **kwargs):
+            super().__init__(**kwargs)
+            self.reset_locations = [(1,1)]
+
     register(
         id='antmaze-umaze-v3',
         entry_point='d4rl.locomotion.ant:make_ant_maze_env',
@@ -64,6 +69,21 @@ try:
             'ref_max_score': 1.0,
         }
     )
+
+    register(
+        id="maze2d-large-staticstart-v1",
+        entry_point=StaticStartMazeEnv,
+        max_episode_steps=800,
+        kwargs={
+            "maze_spec": d4rl.pointmaze.LARGE_MAZE,
+            "reward_type": "sparse",
+            "reset_target": False,
+            "ref_min_score": 6.7,
+            "ref_max_score": 273.99,
+            "dataset_url": "http://rail.eecs.berkeley.edu/datasets/offline_rl/maze2d/maze2d-large-sparse-v1.hdf5",
+        },
+    )
+
 except ImportError:
     d4rl_env = None
 
