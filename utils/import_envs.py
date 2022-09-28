@@ -1,5 +1,6 @@
 import gym
 from gym.envs.registration import register
+import numpy as np
 
 from utils.wrappers import MaskVelocityWrapper
 
@@ -53,6 +54,17 @@ try:
             super().__init__(**kwargs)
             self.reset_locations = [(1,1)]
 
+        def reset_model(self):
+            idx = self.np_random.choice(len(self.reset_locations))
+            reset_location = np.array(self.reset_locations[idx]).astype(self.observation_space.dtype)
+            qpos = reset_location + self.np_random.uniform(low=-.1, high=.1, size=self.model.nq)
+            qvel = self.init_qvel + self.np_random.randn(self.model.nv) * .1
+            self.set_state(qpos, qvel)
+            if self.reset_target:
+                self.set_target()
+            return self._get_obs()
+
+
     register(
         id='antmaze-umaze-v3',
         entry_point='d4rl.locomotion.ant:make_ant_maze_env',
@@ -83,6 +95,21 @@ try:
             "dataset_url": "http://rail.eecs.berkeley.edu/datasets/offline_rl/maze2d/maze2d-large-sparse-v1.hdf5",
         },
     )
+
+    register(
+        id="maze2d-large-dense-staticstart-v1",
+        entry_point=StaticStartMazeEnv,
+        max_episode_steps=800,
+        kwargs={
+            "maze_spec": d4rl.pointmaze.LARGE_MAZE,
+            "reward_type": "dense",
+            "reset_target": False,
+            'ref_min_score': 30.569041,
+            'ref_max_score': 303.4857382709002,
+            'dataset_url':'http://rail.eecs.berkeley.edu/datasets/offline_rl/maze2d/maze2d-large-dense-v1.hdf5'
+        },
+    )
+
 
 except ImportError:
     d4rl_env = None

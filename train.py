@@ -42,6 +42,11 @@ if __name__ == "__main__":  # noqa: C901
         type=int,
     )
     parser.add_argument(
+        "--render-freq",
+        default=10000,
+        type=int,
+    )
+    parser.add_argument(
         "--optimization-log-path",
         help="Path to save the evaluation log and optimal policy for each hyperparameter tried during optimization. "
         "Disabled if no argument is passed.",
@@ -202,6 +207,7 @@ if __name__ == "__main__":  # noqa: C901
         args.tensorboard_log,
         args.n_timesteps,
         args.eval_freq,
+        args.render_freq,
         args.eval_episodes,
         args.save_freq,
         args.hyperparams,

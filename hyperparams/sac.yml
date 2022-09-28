@@ -298,7 +298,7 @@ antmaze-umaze-v0:
   # policy_kwargs: "dict(log_std_init=-3, net_arch=[400, 300], n_critics=3)"
   # replay_buffer_kwargs: "dict(handle_timeout_termination=True)"
 
-maze2d-large-staticstart-v1:
+maze2d-large-staticstart-v1: &maze-defaults
   n_timesteps: 5000000   
   buffer_size: 2000000
   policy: 'MlpPolicy'
@@ -311,5 +311,8 @@ maze2d-large-staticstart-v1:
   # use_sde: True
   # policy_kwargs: "dict(log_std_init=-3, net_arch=[400, 300], n_critics=3)"
   # replay_buffer_kwargs: "dict(handle_timeout_termination=True)"
+
+maze2d-large-dense-staticstart-v1:
+  <<: *maze-defaults
 
 

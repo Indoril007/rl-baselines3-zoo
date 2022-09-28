@@ -71,6 +71,7 @@ class ExperimentManager:
         tensorboard_log: str = "",
         n_timesteps: int = 0,
         eval_freq: int = 10000,
+        render_freq: int = 10000,
         n_eval_episodes: int = 5,
         save_freq: int = -1,
         hyperparams: Optional[Dict[str, Any]] = None,
@@ -124,6 +125,7 @@ class ExperimentManager:
         self.callbacks = []
         self.save_freq = save_freq
         self.eval_freq = eval_freq
+        self.render_freq = render_freq
         self.n_eval_episodes = n_eval_episodes
         self.n_eval_envs = n_eval_envs
 
@@ -474,13 +476,13 @@ class ExperimentManager:
 
             self.callbacks.append(eval_callback)
 
-            # render_callback = RenderCallback(
-            #     log_path=self.save_path,
-            #     filename="trajectory",
-            #     render_freq=self.eval_freq,
-            # )
-            # self.callbacks.append(render_callback)
-
+            render_callback = RenderCallback(
+                render_env=self.create_envs(n_envs=1, eval_env=True),
+                log_path=self.save_path,
+                filename="trajectory",
+                render_freq=self.render_freq,
+            )
+            self.callbacks.append(render_callback)
 
     @staticmethod
     def is_atari(env_id: str) -> bool:

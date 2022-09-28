@@ -4,7 +4,7 @@ import time
 from copy import deepcopy
 from functools import wraps
 from threading import Thread
-from typing import Optional
+from typing import Optional, Union
 import gym
 from utils import video
 from pathlib import Path
@@ -67,6 +67,7 @@ class RenderCallback(BaseCallback):
 
     def __init__(
         self,
+        render_env: Union[gym.Env, VecEnv],
         log_path: str,
         filename: str,
         render_freq: int = 10000,
@@ -80,6 +81,12 @@ class RenderCallback(BaseCallback):
         self.deterministic = deterministic
         self.n_episodes = n_episodes
 
+        # Convert to VecEnv for consistency
+        if not isinstance(render_env, VecEnv):
+            render_env = DummyVecEnv([lambda: render_env])
+
+        self.render_env = render_env
+
     def _init_callback(self) -> None:
         pass
 
@@ -89,9 +96,9 @@ class RenderCallback(BaseCallback):
         print('Beggining render collections')
 
         done = False
-        obs = self.training_env.reset()
+        obs = self.render_env.reset()
         renderings.append(
-            self.training_env.render('rgb_array')
+            self.render_env.render('rgb_array')
         )
         state = None
 
@@ -100,10 +107,10 @@ class RenderCallback(BaseCallback):
                 obs,
                 state=state,
                 deterministic=self.deterministic)
-            obs, reward, done, info = self.training_env.step(action)
+            obs, reward, done, info = self.render_env.step(action)
 
             renderings.append(
-                self.training_env.render('rgb_array')
+                self.render_env.render('rgb_array')
             )
 
         return renderings
